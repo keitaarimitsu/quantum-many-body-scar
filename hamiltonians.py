@@ -1,4 +1,4 @@
-def pxp_1d(n_site, state_vecs):
+def pxp_1d(n_site: int, state_vecs):
   """create PXP Hamiltonian in 1 dimensional lattice.
   
   Args:
@@ -13,4 +13,9 @@ def pxp_1d(n_site, state_vecs):
       pxp[i][j] corresponds to a matrix element of the PXP model, i.e., <i|H|j> where |i> = state_vecs[i]      
   """
   pxp = np.zeros((len(state_vecs), len(state_vecs)))
+  
+  for i in range(len(state_vecs)):
+      tmp_str = state_vecs[i]
+      for k in range(n_site):
+          if k == 0:
   return pxp
