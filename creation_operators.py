@@ -1,4 +1,4 @@
-def constraint_lowering_ordered1d(
+def constraint_lowering1d(
     n_site: int,
     state_vecs: "np.array",
     pos1: int,
@@ -14,33 +14,52 @@ def constraint_lowering_ordered1d(
         pos1 (int):
             position of 1st island
         pos2 (int):
-            position of 2nd island, which must be bigger than pos1.
+            position of 2nd island
     Return:
         operator (scipy.sparse.csc_matrix): a matrix corresponding a_[pos1]^dag a_[pos2]^dag
     """
     operator = np.zeros((len(state_vecs), len(state_vecs)), dtype="int32")
-    if pos1 => pos2:
-        raise TypeError("pos1 must be less than pos2")
-    else:
-        for i in range(len(state_vecs)):
-            tmp_str = state_vecs[i]
-            if pos1 == 0:
-                if pos2 == 2:
-                    if (tmp_str[n_site - 1] == "1") and (tmp_str[pos1 + 1] == "1") and (tmp_str[pos2 + 1] == "1"):
-                        if (tmp_str[pos1] == "0") and (tmp_str[pos2] == "0"):
-                            aft_str = tmp_str[pos2 + 1:]
-                            act_str = "111" + aft_str
-                            idx = state_vecs.index(act_str)
-                            operator[idx][i] += 1
-                elif pos2 == n_site - 2:
-                    if (tmp_str[n_site - 3] == "1") and (tmp_str[n_site - 1] == "1") and (tmp_str[pos1 + 1] == "1"):
-                        if (tmp_str[pos1] == "0") and (tmp_str[pos2] == "0"):
-                            aft_str = tmp_str[pos1 + 1: pos2]
-                            act_str = "1" + aft_str + "11"
-                            idx = state_vecs.index(act_str)
-                            operator[idx][i] += 1
-                else:
-                    if (tmp_str[n_site - 1] == "1") and (tmp_str[pos1 + 1] == "1") and (tmp_str[pos2 - 1] == "1") and (tmp_str[pos2 + 1] == "1"):
-                        if (tmp_str[pos1] == "0") and (tmp_str[pos2] == "0"):
-                            aft
+    
+    for i in range(len(state_vecs)):
+        tmp_str = state_vecs[i]
+        cond_str_pos1 = "".join([tmp_str[(pos1 - 1) % n_site], tmp_str[(pos1 + 1) % n_site]])
+        cond_str_pos2 = "".join([tmp_str[(pos2 - 1) % n_site], tmp_str[(pos2 + 1) % n_site]])
+        cond_str = cond_str_pos1 + cond_str_pos2
+        if (cond_str == "1111") and (tmp_str[pos1] == "0") and (tmp_str[pos2] == "0"):
+            tmp_str_list = list(tmp_str)
+            tmp_str_list[pos1] = "1"
+            tmp_str_list[pos2] = "1"
+            act_str = "".join(tmp_str_list)
+            idx = state_vecs.index(act_str)
+            operator[idx][i] += 1
+    return csc_matrix(operator)
         
+    
+def one_body_bound_state_creation1d(
+    n_site: int,
+    state_vecs: "np.array",
+    pos: int,
+) -> "scipy.sparse.csc_matrix":
+    """construct a bound state in 1d pxp chain, i.e., P_[pos-2]P_[pos-1]s^+_[pos]P_[pos+1]P_[pos+2]
+    Args:
+        n_site (int): 
+            the number of spins
+        state_vecs (np.array):
+            1d array represents states
+        pos (int):
+            position of the bound state
+    Return:
+        operator (scipy.sparse.csc_matrix):
+            P_[pos-2]P_[pos-1]s^+_[pos]P_[pos+1]P_[pos+2]
+    """
+    operator = np.zeros((len(state_vecs), len(state_vecs)), dtype="int32")
+    for i in range(len(state_vecs)):
+        tmp_str = state_vecs[i]
+        cond_str = "".join([tmp_str[(b + k) % n_site] for k in range(-2, 3, 1)]) 
+        if cond_str == "11111":
+            tmp_str_list = list(tmp_str)
+            tmp_str_list[b] = "0"
+            act_str = "".join(tmp_str_list)
+            idx = state_vecs.index(act_str)
+            operator[idx][i] += 1
+    return csc_matrix(operator)       
