@@ -56,4 +56,4 @@ def pxp_1d(n_site: int, state_vecs):
                               
                       idx = state_vec.index(act_str)
                       pxp[idx][i] += 1
-      return pxp  
+      return csr_matrix(pxp)  
