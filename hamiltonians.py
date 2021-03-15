@@ -21,39 +21,15 @@ def pxp_1d(n_site: int, state_vecs):
       for i in range(len(state_vecs)):
           tmp_str = state_vecs[i]
           for k in range(n_site):
-              if k == 0:
-                  if (tmp_str[k + 1] == "1") and (tmp_str[int(n_site / 2 - 1)] == "1"):
-                      if tmp_str[k] == "0":
-                          aft_str = tmp_str[k + 1:]
-                          act_str = "1" + aft_str
-                      else:
-                          aft_str = tmp_str[k + 1:]
-                          act_str = "0" + aft_str
-                          
-                      idx = state_vecs.index(act_str)
-                      pxp[idx][i] += 1
-              elif k == int(n_site / 2 -1):
-                  if (tmp_str[k - 1] == "1") and (tmp_str[0] == "1"):
-                      if tmp_str[k] == "0":
-                          bef_str = tmp_str[0:k]
-                          act_str = bef_str + "1"
-                      else:
-                          bef_str = tmp_str[0:k]
-                          act_str = bef_str + "0"
-                          
-                      idx = state_vecs.index(act_str)
-                      pxp[idx][i] += 1
-              else:
-                  if (tmp_str[k - 1] == "1") and (tmp_str[k + 1] == "1"):
-                      if tmp_str[k] == "0":
-                          bef_str = tmp_str[0:k]
-                          aft_str = tmp_str[k + 1:]
-                          act_str = bef_str + "1" + aft_str
-                      else:
-                          bef_str = tmp_str[0:k]
-                          aft_str = tmp_str[k + 1:]
-                          act_str = bef_str + "0" + aft_str
-                              
-                      idx = state_vec.index(act_str)
-                      pxp[idx][i] += 1
+              cond_str = "".join([tmp_str[(k - 1) % n_site], tmp_str[(k + 1) % n_site]])
+              if cond_str == "11":
+                  tmp_str_list = list(tmp_str)
+                  if tmp_str_list[k] == "0":
+                      tmp_str_list[k] == "1"
+                  else:
+                      tmp_str_list[k] == "0"
+                  act_str = "".join(tmp_str_list)
+                  
+                  idx = state_vecs.index(act_str)
+                  pxp[idx][i] += 1
       return csr_matrix(pxp)  
