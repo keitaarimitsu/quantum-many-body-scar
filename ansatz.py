@@ -1,5 +1,6 @@
 from creation_operator import (
     constraint_lowering1d,
+    one_body_island_creation1d,
     one_body_bound_state_creation1d
 )
 from scipy.linalg import expm
@@ -35,7 +36,8 @@ def condensate_ansatz1d(n_site: int, state_vecs: "np.array"):
     for k in range(int(n_site / 2)):
         for l in range(int(n_site / 2)):
             if k > l:
-                condensate += constraint_lowering1d(n_site, state_vecs, k, l)
+                condensate += constraint_lowering1d(n_site, state_vecs, 2 * l, 2 * k)
+                condensate += constraint_lowering1d(n_site, state_vecs, 2 * l + 1, 2 * k + 1)
     condensate = - 1 / (int(n_site / 2) - 1) * condensate
     condensate_ansatz = expm(condensate).dot(vacuum)
     return condensate_ansatz
@@ -46,4 +48,12 @@ def condensate_with_bound_state1d(n_site: int, state_vecs: "np.array"):
     Return:
       np.array representing |ψ^1_scar>  
     """
-    
+    condensate_ansatz = condensate_ansatz1d(n_site, state_vecs)
+    island_creation = np.zeros((len(state_vecs), len(state_vecs)), dtype="float32")
+    bound_state = np.zeros((len(state_vecs), len(state_vecs)), dtype="float32")
+    for k in range(len(n_site)):
+        island_creation += one_body_island_creation1d(n_site, state_vecs, k)
+        bound_state += one_body_state_creation1d(n_site, state_vecs, k)
+    with_bound_state = -1 / (int(n_site / 2) - 2) * bound_state.dot(island_creation)
+    condensate_with_bound_ansatz = expm(with_bound_state).dot(condensate_ansatz)
+    return condensate_with_bound_ansatz
