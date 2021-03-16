@@ -25,9 +25,9 @@ def pxp_1d(n_site: int, state_vecs):
               if cond_str == "11":
                   tmp_str_list = list(tmp_str)
                   if tmp_str_list[k] == "0":
-                      tmp_str_list[k] == "1"
+                      tmp_str_list[k] = "1"
                   else:
-                      tmp_str_list[k] == "0"
+                      tmp_str_list[k] = "0"
                   act_str = "".join(tmp_str_list)
                   
                   idx = state_vecs.index(act_str)
