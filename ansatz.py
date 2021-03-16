@@ -53,7 +53,7 @@ def condensate_with_bound_state1d(n_site: int, state_vecs: "np.array"):
     bound_state = np.zeros((len(state_vecs), len(state_vecs)), dtype="float32")
     for k in range(len(n_site)):
         island_creation += one_body_island_creation1d(n_site, state_vecs, k)
-        bound_state += one_body_state_creation1d(n_site, state_vecs, k)
+        bound_state += one_body_bound_state_creation1d(n_site, state_vecs, k)
     with_bound_state = -1 / (int(n_site / 2) - 2) * bound_state.dot(island_creation)
     condensate_with_bound_ansatz = expm(with_bound_state).dot(condensate_ansatz)
     return condensate_with_bound_ansatz
