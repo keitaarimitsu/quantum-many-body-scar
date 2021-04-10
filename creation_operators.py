@@ -117,3 +117,28 @@ def one_body_bound_state_creation1d(
             idx = state_vecs.index(act_str)
             operator[idx][i] += 1
     return csc_matrix(operator)       
+
+
+def spectrum_generating_algebra1d(
+    n_site: int,
+    state_vecs: "np.array"
+) -> "scipy.sparse.csc_matrix":
+    operator = np.zeros((len(state_vecs), len(state_vecs)), dtype="float32")
+    for idx, state in enumerate(state_vecs):
+        for k in range(len(state)):
+            cond_str = "".join([state[(k + l) % n_site] for l in range(-1, 2, 1)])
+            if cond_str == "111":
+                act_str_list = list(state)
+                act_str_list[k] = "0"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[idx][idx] += (-1) ** k * (-1)
+                operator[act_idx][idx] += (-1) ** k * (-1) / np.sqrt(2)
+            elif cond_str == "101":
+                act_str_list = list(state)
+                act_str_list[k] = "1"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[idx][idx] += (-1) ** k
+                operator[act_idx][idx] += (-1) ** k / np.sqrt(2)
+    return csc_matrix(operator)
