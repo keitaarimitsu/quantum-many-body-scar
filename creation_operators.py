@@ -142,3 +142,65 @@ def spectrum_generating_algebra1d(
                 operator[idx][idx] += (-1) ** k
                 operator[act_idx][idx] += (-1) ** k / np.sqrt(2)
     return csc_matrix(operator)
+
+
+def remainings(
+    n_site: int,
+    state_vecs: "np.array"
+) -> "scipy.sparse.csc_matrix":
+    operator = np.zeros((len(state_vecs), len(state_vecs)), dtype="float32")
+    for idx, state in enumerate(state_vecs):
+        for k in range(len(state)):
+            cond_str1 = "".join([state[(k + l) % n_site] for l in range(-2, 2, 1)])
+            cond_str2 = "".join([state[(k + l) % n_site] for l in range(-1, 3, 1)])
+            if cond_str1 == "0101":
+                act_str_list = list(state)
+                act_str_list[k] = "1"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** k / 2
+            elif cond_str1 == "0111":
+                act_str_list = list(state)
+                act_str_list[k] = "0"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** (k + 1) / 2
+            elif cond_str1 == "1101":
+                act_str_list = list(state)
+                act_str_list[k] = "1"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** (k + 1) / 2
+            elif cond_str1 == "1111":
+                act_str_list = list(state)
+                act_str_list[k] = "0"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** k / 2
+                
+            if cond_str2 == "1010":
+                act_str_list = list(state)
+                act_str_list[k] = "1"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** k / 2
+            elif cond_str2 == "1110":
+                act_str_list = list(state)
+                act_str_list[k] = "0"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** (k + 1) / 2
+            elif cond_str2 == "1011":
+                act_str_list = list(state)
+                act_str_list[k] = "1"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** (k + 1) / 2
+            elif cond_str2 == "1111":
+                act_str_list = list(state)
+                act_str_list[k] = "0"
+                act_str = "".join(act_str_list)
+                act_idx = state_vecs.index(act_str)
+                operator[act_idx][idx] += (-1) ** k / 2
+    return csc_matrix(operator)
+                
